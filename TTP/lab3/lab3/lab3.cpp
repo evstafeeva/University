@@ -16,21 +16,18 @@ char* Rus(const char*text) //перевод на русский
 }
 
 
-int zag(char str[], char pattern[]) //проверяем на равенство паттернам
+int isDiniedName(char name[]) //проверяем на равенство паттернам
 {
-	int i = 0, q = 0, n = 0;
-	while (str[n] != '|')
-		n++;
-	for (; i < n;)
+	char* deniedNames[] =
+	{ "con", "prn", "aux", "nul", "com1", "com2", "com3", "com4", "com5", "com6", "com7", "com8", 
+	  "com9", "lpt1", "lpt2", "lpt3", "lpt4", "lpt5",  "lpt6", "lpt7", "lpt8", "lpt9" };
+
+	for (int i = 0; i < sizeof(deniedNames)/sizeof(char*); i++)
 	{
-		if (str[i] == pattern[i] || str[i] == (pattern[i] + 32) || str[i] == (pattern[i] - 32))
-			i++;
-		else
+		if (strcmp(name, deniedNames[i]) == 0)
 			return 0;
 	}
-	if (i == n)
 	return 1;
-	else return 0;
 }
 
 int name(char str[]) //находим часть пути входного файла,где можно найти ошибку
@@ -40,8 +37,8 @@ int name(char str[]) //находим часть пути входного файла,где можно найти ошибку
 	if (str[c] == '\n' || str[c] == '\0')
 		return 0;
 	char pro[1000];
-	for (i = 0; i < 1000; i++)
-		pro[i] = '|';
+	memset(pro, '\0', sizeof(pro));
+
 	while (str[n] != '\0')
 		n++;
 	i = n;
@@ -62,12 +59,7 @@ int name(char str[]) //находим часть пути входного файла,где можно найти ошибку
 	{
 		pro[q] = str[i];
 	}
-	if (zag(pro, "con") == 0 && zag(pro, "prn") == 0 && zag(pro, "aux") == 0 && zag(pro, "nul") == 0 && zag(pro, "com1") == 0 && zag(pro, "com2") == 0 && zag(pro, "com3") == 0 && zag(pro, "com4") == 0 &&
-		zag(pro, "com5") == 0 && zag(pro, "com6") == 0 && zag(pro, "com7") == 0 && zag(pro, "com8") == 0 && zag(pro, "com9") == 0 && zag(pro, "lpt1") == 0 && zag(pro, "lpt2") == 0 && zag(pro, "lpt3") == 0 &&
-		zag(pro, "lpt4") == 0 && zag(pro, "lpt5") == 0 && zag(pro, "lpt6") == 0 && zag(pro, "lpt7") == 0 && zag(pro, "lpt8") == 0 && zag(pro, "lpt9") == 0)
-		return 1;
-	else
-		return 0;
+	return isDiniedName(pro);
 }
 
 int search(char string[], char a) //ищем вхождение символа в строку
