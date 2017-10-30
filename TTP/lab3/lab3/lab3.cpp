@@ -30,26 +30,48 @@ int isDiniedName(char name[]) //провер€ем на равенство паттернам
 	return 1;
 }
 
+int find(const char* where, char what)
+{
+  int whereLength = strlen(where);
+
+  for(int offset = 0; offset < whereLength; offset++) {
+    if(where[offset] == what)
+      return offset;
+  }
+  return -1;
+}
+
+void removeSymbolsFromString(char* where, char symbol)
+{
+  int length = strlen(where);
+  for(int i = 0; i < length; i++) {
+    for(int j = i + 1; j < length; j++) {
+      if(where[j] != symbol) {
+        where[i] = where[j];
+        break;
+      }
+    }
+  }
+}
+
 int name(char str[]) //находим часть пути входного файла,где можно найти ошибку
 {
-	int n = 0, q = 0, i, k, c;
+  int length = 0, q = 0, i, k, c;
 	for (c = 0; str[c] == ' '; c++);
 	if (str[c] == '\n' || str[c] == '\0')
 		return 0;
 	char pro[1000];
 	memset(pro, '\0', sizeof(pro));
 
-	while (str[n] != '\0')
-		n++;
-	i = n;
+  length = strlen(str);
+  i = length;
 	while (str[i] != '\\' && i != -1)
 		i--;
 	i++;
 	while (str[i] == ' ')
 		i++;
 	k = i;
-	while (str[k] != '.' && k <= n)
-		k++;
+  k += find(str+k, '.');
 	k--;
 	while (str[k] == ' ')
 		k--;
@@ -136,10 +158,37 @@ void ReadToStr(FILE *Fl)
 	strok[k + 1] = '\0';
 }
 
+bool Test_FindSymbolInString()
+{
+  return find("   con.tre   ", '.') == 6;
+}
 
+bool Test_name()
+{
+  return name("     con.  templ") == 0
+      && name(" abc.templ") == 1;
+}
+
+bool Test_removeSymbolsFromString()
+{
+  char* str = "a    df   v";
+  removeSymbolsFromString(str, ' ');
+  return strcmp(str, "adfv") == 0;
+}
+
+#define RUN_TEST(name) \
+  if(!Test_##name()) {  \
+    fprintf(stderr, "Test "#name" FAILED!\n");  \
+    return 1;                                              \
+  }
 
 int main()
 {
+  RUN_TEST(FindSymbolInString);
+  RUN_TEST(name);
+  RUN_TEST(removeSymbolsFromString);
+
+
 	FILE *fin, *fout;
 
 	char glas[] = "AEIOUYaeiouyј”≈џќЁя»ё®ауеыоэ€июЄ";
@@ -160,7 +209,7 @@ one:
 		{
 			printf(Rus("Ёто неверное название входного файла!\n¬ведите корректное название входного файла:\n"));
 		}
-		gets_s(filename1, 1000);
+    gets(filename1);
 
 	} while (name(filename1) == 0);
 
@@ -183,7 +232,7 @@ two:
 		{
 			printf(Rus("Ёто неверное название выходного файла!\n¬ведите корректное название выходного файла:\n"));
 		}
-		gets_s(filename2, 1000);
+    gets(filename2);
 	} while (name(filename2) == 0);
 
 	if (!(fout = fopen(filename2, "w"))) 
